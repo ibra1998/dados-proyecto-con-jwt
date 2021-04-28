@@ -37,7 +37,10 @@ public class JwtFilterRequest2 extends OncePerRequestFilter{
 			throws ServletException, IOException {
 			String authorizationHeader = request.getHeader("Authorization");
 			String path = request.getRequestURI();
-			if (! path.matches("/auth")) {
+			Boolean passFilter =! path.matches("/auth") && !path.matches("/home/players") && !path.matches("/home/players/ranking/winner");
+			passFilter = passFilter && ! path.matches("/home/players/ranking") && ! path.matches("/home/players/ranking/looser");
+			passFilter = path.matches("/home/players/[0-9]+/games");
+			if (passFilter ) {
 				String playerName = null;
 				if(! String.valueOf(path.subSequence(path.lastIndexOf("home/players/")+13, path.indexOf("/games"))).isEmpty()) {
 
@@ -51,8 +54,12 @@ public class JwtFilterRequest2 extends OncePerRequestFilter{
 					jwtToken = authorizationHeader.substring(7);
 					username = jwtUtils.extractUsername(jwtToken);
 				}
-				if (! username.equalsIgnoreCase(playerName)) {
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "No se ha autentificado para este usuario");
+				if (username ==null) {
+					response.sendError(HttpServletResponse.SC_FORBIDDEN, "No se ha autentificado para este usuario");	
+				}if (! (username ==null) ) {
+					if (! username.equalsIgnoreCase(playerName)) {
+						response.sendError(HttpServletResponse.SC_FORBIDDEN, "No se ha autentificado para este usuario");
+					}
 				}/*
 				if(username != null  && username.equalsIgnoreCase(playerName)) {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN, "No se ha autentificado para este usuario");

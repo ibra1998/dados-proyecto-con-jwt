@@ -18,6 +18,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.demo.service.UserService;
 
+import io.jsonwebtoken.ExpiredJwtException;
+
 
 @Component
 public class JwtFilterRequest extends OncePerRequestFilter{
@@ -36,10 +38,14 @@ public class JwtFilterRequest extends OncePerRequestFilter{
 			String jwtToken = null;
 			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 				jwtToken = authorizationHeader.substring(7);
-				username = jwtUtils.extractUsername(jwtToken);
+				try {
+					username = jwtUtils.extractUsername(jwtToken);
+				}catch(ExpiredJwtException e) {
+					
+				}
 			}
 			
-			if(username != null && SecurityContextHolder.getContext().getAuthentication() ==null) {
+			if(username != null && SecurityContextHolder.getContext().getAuthentication() ==null ) {
 				UserDetails currentUserDetails = userService.loadUserByUsername(username);
 				Boolean tokenValidated = jwtUtils.validateToken(jwtToken, currentUserDetails);
 				if (tokenValidated) {

@@ -34,11 +34,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().authorizeRequests().antMatchers("/subs","/auth")
+		http.csrf().disable().authorizeRequests().antMatchers("/subs","/auth", "/home/players", "/home/players/ranking", "/home/players/ranking/winner", "/home/players/ranking/looser")
 		.permitAll().anyRequest().authenticated().and()
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtFilterRequest, UsernamePasswordAuthenticationFilter.class);
-		http.antMatcher("players/{id}/games").addFilterBefore(jwtFilterRequest2, UsernamePasswordAuthenticationFilter.class);
+		http.addFilter(jwtFilterRequest2);
 	}
 	
 	

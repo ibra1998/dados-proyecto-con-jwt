@@ -70,10 +70,11 @@ public class Contrroller {
 	}
 	
 	@PostMapping("/home/players")
-	public ResponseEntity<Player> postPlayer(@RequestBody  PlayerDetails pl  ){
+	public ResponseEntity<Player> postPlayer(@RequestBody  AuthenticationRequest pl ){
 		Player player = new Player();
 		player.setId(playerDao.count());
-		player.setName(pl.getName());
+		this.subscribeStudent(pl);
+		player.setName(pl.getUserName());
 		Player newplayer =playerDao.save(player);
 		return ResponseEntity.ok(newplayer);
 	}
@@ -116,9 +117,11 @@ public class Contrroller {
 		Optional<Player> optionalPlayer= playerDao.findById(id);
 		if(optionalPlayer.isPresent()) {
 			Player pl1=optionalPlayer.get();
-			List<Game> gamesList= pl1.getGames();
-			gamesList.removeAll(pl1.getGames());
-			pl1.setGames(gamesList);
+			if (pl1.getGames() !=null) {
+				List<Game> gamesList= pl1.getGames();
+				gamesList.removeAll(pl1.getGames());
+				pl1.setGames(gamesList);	
+			}
 			Player pl = playerDao.save(pl1);
 			return ResponseEntity.ok(pl);
 		}else {
@@ -232,7 +235,7 @@ public class Contrroller {
 		return ResponseEntity.ok(new AuthenticationResponse(generatedToken));
 	}
 	
-	@PostMapping("/subs")
+	//@PostMapping("/subs")
 	private ResponseEntity<?> subscribeStudent(@RequestBody AuthenticationRequest authentificationRequest){
 		String name = authentificationRequest.getUserName();
 		String password = authentificationRequest.getPassword();
